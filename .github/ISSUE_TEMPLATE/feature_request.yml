@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest something new
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening, please skim [BUILD_PLAN.md](../../blob/main/BUILD_PLAN.md) and [WHY_AND_HOW.md](../../blob/main/WHY_AND_HOW.md) — your idea may already be on the roadmap.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What user problem are you trying to solve?
+      placeholder: "When I'm doing X, I have to Y, which is painful because Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you add or change?
+      placeholder: "A new command / a new section in .ai-memory.md / a new emit format / etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: tokens
+    attributes:
+      label: Token-frugality impact
+      description: Token frugality is the #1 design constraint. Estimate the token impact of your feature (added to memory_load, added to MCP tool surface, etc.).
+      placeholder: "Adds ~X tokens to memory_load. Or: no impact, command-only."
+    validations:
+      required: true
+
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety impact
+      description: How does this preserve the promises in SAFETY.md? (No source code writes, no silent overwrites, etc.)
+      placeholder: "Reads only / writes only to ~/.memorybridge/ / never overwrites unbannered files / etc."
+
+  - type: dropdown
+    id: who
+    attributes:
+      label: Are you offering to build it?
+      options:
+        - "Yes — I'll send a PR"
+        - "Maybe — depends on feedback"
+        - "No — just suggesting"
+    validations:
+      required: true

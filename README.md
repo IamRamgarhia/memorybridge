@@ -264,6 +264,73 @@ node dist/cli.js init
 
 ---
 
+## 🔎 Common questions (long-form)
+
+### How do I share AI memory between Claude Code and Cursor?
+
+Install MemoryBridge once with `npx memorybridge init`. It detects both tools and configures the MCP server in `~/.claude.json` and `~/.cursor/mcp.json`. Restart both tools. From then on, the same `.ai-memory.md` file in your project folder is read by both. When Claude Code learns something, Cursor sees it next session. Same for Antigravity, Windsurf, Gemini CLI, and any other MCP-compatible AI tool.
+
+### How do I stop my AI from forgetting things between sessions?
+
+The reason AI forgets is that each session starts with a fresh context window. MemoryBridge solves this by giving the AI a tool (`memory_load`) it calls at the start of every session to retrieve project context from a local file. When you state preferences or make decisions, the AI calls `memory_save` to persist them. Nothing leaves your machine — it's all in a Markdown file you can read in any text editor.
+
+### How do I save tokens on Claude Code, Cursor, or Anthropic's API?
+
+Three mechanisms compound:
+
+1. **Cut input tokens** — stop re-pasting project context every session (saves 1,500–3,000 tokens/session)
+2. **Cut output tokens** — set `memorybridge style 1` for ultra-terse AI responses (saves up to 75% of output tokens, which cost 5× more than input)
+3. **Cut search/grep tokens** — the `@map` and `@symbols` sections cache where things live, so AI doesn't re-grep
+
+Run `memorybridge compare --sessions 300` to see your projected monthly savings at typical Sonnet pricing.
+
+### What is AGENTS.md and how does MemoryBridge handle it?
+
+`AGENTS.md` is the emerging cross-tool convention for project instructions to AI agents (see the [300-comment thread](https://github.com/anthropics/claude-code/issues/6235) on the Claude Code repo). MemoryBridge can generate `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `GEMINI.md`, `.continuerules`, and `.github/copilot-instructions.md` — all from one source `.ai-memory.md` — with a single command: `memorybridge emit --all`. Files are protected by a SHA-1 hash banner so MemoryBridge refuses to overwrite hand-written content.
+
+### Does MemoryBridge work offline?
+
+Yes, completely. No network calls. No telemetry. No API keys required. The MCP server runs locally as a subprocess of your AI tool. The only network traffic is your AI tool talking to its own provider (Anthropic, OpenAI, etc.) — MemoryBridge sits between you and that traffic, not on top of it.
+
+### Is MemoryBridge a replacement for Mem0 / Letta / basic-memory?
+
+It overlaps with them but solves a different problem. Mem0 and Letta are designed for agent applications that need vector search and LLM-extracted memories — they require servers, databases, and API keys. MemoryBridge is designed for individual developers using AI coding tools who want context to persist across sessions and tools without setup. If you need vector search or graph memory in an agent framework, use Mem0 or Letta. If you want your IDE's AI to stop forgetting your project, use MemoryBridge.
+
+### How do I install MemoryBridge in Windsurf / Continue.dev / VS Code Copilot?
+
+`npx memorybridge init` auto-detects them and writes the right MCP config. If detection misses your tool, the MCP entry to add manually is:
+
+```json
+{
+  "mcpServers": {
+    "memorybridge": {
+      "command": "node",
+      "args": ["/absolute/path/to/memorybridge/dist/server.js"]
+    }
+  }
+}
+```
+
+Add it to your tool's MCP config file and restart. Check your tool's docs for the file location.
+
+### Can I share AI memory with my team?
+
+Yes. The `.ai-memory.md` file is plain Markdown in your project folder. Commit it to Git. New teammates clone the repo and their AI immediately knows the project's architecture, decisions, and known bugs. This turns ad-hoc tribal knowledge into version-controlled team context.
+
+### Where can I see what MemoryBridge has stored?
+
+Three ways:
+
+```bash
+memorybridge open       # opens the memory file in your default editor
+memorybridge list       # CLI listing of every entry
+memorybridge load       # exactly what the AI sees on session start
+```
+
+It's all plain Markdown. No black box.
+
+---
+
 ## 📚 Related projects
 
 - [Model Context Protocol](https://modelcontextprotocol.io/) — the standard MemoryBridge speaks

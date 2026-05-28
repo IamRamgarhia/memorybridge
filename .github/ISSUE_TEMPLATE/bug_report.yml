@@ -1,0 +1,69 @@
+name: Bug report
+description: Something MemoryBridge did wrong, or didn't do
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please include enough information to reproduce the issue.
+
+  - type: input
+    id: version
+    attributes:
+      label: MemoryBridge version
+      placeholder: "Run: memorybridge version  →  0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other (specify in details)
+    validations:
+      required: true
+
+  - type: input
+    id: ai-tool
+    attributes:
+      label: AI tool involved
+      placeholder: "e.g. Claude Code 1.x, Cursor 0.x, Antigravity, etc."
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of what went wrong.
+      placeholder: "When I ran X, MemoryBridge did Y. I expected Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The commands or actions that triggered the bug. The smaller the repro, the faster the fix.
+      placeholder: |
+        1. cd /some/project
+        2. node dist/cli.js add "..."
+        3. observe ...
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "Output of: memorybridge doctor"
+      description: Helps narrow down the environment quickly. Redact paths if sensitive.
+      render: text
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Logs, screenshots, related issues.

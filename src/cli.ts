@@ -23,6 +23,7 @@ import { uninstall, formatUninstallReport } from "./uninstall.js";
 import { compare, formatCompare } from "./compare.js";
 import { formatSettings } from "./settings.js";
 import { runDiagnostics, formatDiagnostics } from "./diagnostics.js";
+import { writeDashboard, openInBrowser } from "./dashboard.js";
 import { TOKEN_BUDGET, countTokens } from "./budget.js";
 import { computeStats, formatStats, logUsage } from "./stats.js";
 import { applyAction, addCustomDirective, clearCustomDirectives, formatStyleStatus, getCurrentStyle, StyleAction } from "./style.js";
@@ -47,6 +48,7 @@ Most-used (intuitive aliases):
   settings                        One-page settings dashboard — show + change everything
   shorter                         Shorter AI responses (one step — saves more tokens)
   longer                          Longer AI responses (one step — more detail)
+  dashboard                       Open a visual web dashboard (HTML) with charts, projects, files, $ saved
   savings                         Show how many tokens + $ you've saved
   show                            Preview what the AI sees on session start
 
@@ -298,6 +300,15 @@ function cmdDoctor(): void {
 function cmdStats(): void {
   const stats = computeStats();
   console.log(formatStats(stats));
+}
+
+function cmdDashboard(): void {
+  const dashPath = writeDashboard();
+  console.log("");
+  console.log(`Dashboard written: ${dashPath}`);
+  console.log(`Opening in your default browser…`);
+  console.log("");
+  openInBrowser(dashPath);
 }
 
 function cmdCompare(args: string[]): void {
@@ -601,6 +612,9 @@ async function main() {
       return cmdStyle(["bigger"]);
     case "savings":
       return cmdStats();
+    case "dashboard":
+    case "dash":
+      return cmdDashboard();
     case "show":
       return cmdLoad(rest);
     case "scan":

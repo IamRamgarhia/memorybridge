@@ -148,9 +148,12 @@ memorybridge shorter             # cut AI response length (saves output tokens)
 memorybridge style 1             # jump straight to "ultra-terse" (~75% output saved)
 memorybridge savings             # see real measured + estimated savings
 memorybridge compare             # side-by-side before/after with $ math
+memorybridge dashboard           # open the visual web dashboard in your browser
 ```
 
 Output tokens cost **5× more** than input tokens, so the style toggle is the biggest dollar saver. Start at level 3 (balanced) and tighten if you want shorter answers.
+
+The **`dashboard`** command opens a full HTML report in your default browser — charts of token activity over the last 30 days, every project's memory file, $ saved per model tier, and the recent activity log. Refresh by running the command again any time.
 
 ### Step 8 — Roll back or uninstall anytime
 

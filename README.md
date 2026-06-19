@@ -32,6 +32,7 @@
 - [🔧 How it works](#-how-it-works)
 - [🎛️ One dashboard for everything](#️-one-dashboard-for-everything)
 - [🛠️ CLI reference](#️-cli-reference)
+- [🧐 Is it actually helping me?](#-is-it-actually-helping-me)
 - [❓ FAQ](#-faq)
 - [🔎 Common questions (long-form)](#-common-questions-long-form)
 - [🤝 Contributing](#-contributing)
@@ -409,6 +410,19 @@ PRs welcome. Good first issues:
 - Translating the CLI output
 
 Open an issue first if you're planning a big change.
+
+---
+
+## 🧐 Is it actually helping me?
+
+Read **[HONEST.md](HONEST.md)** for the brutally honest answer — including:
+- Who MemoryBridge helps a lot (30%+ savings) vs barely (under 5%)
+- A worked dollar example based on real Claude Code usage patterns
+- Exactly what's measured vs estimated in our numbers
+- How to verify on your own machine
+- When to uninstall
+
+We'd rather you uninstall on month 1 than feel cheated on month 6.
 
 ---
 

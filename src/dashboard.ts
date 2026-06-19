@@ -447,3 +447,77 @@ export function openInBrowser(filePath: string): void {
     spawn("xdg-open", [filePath], { detached: true, stdio: "ignore" }).unref();
   }
 }
+
+import os from "node:os";
+
+function desktopDir(): string {
+  const home = os.homedir();
+  if (process.platform === "win32") {
+    if (process.env.USERPROFILE) {
+      const candidate = path.join(process.env.USERPROFILE, "Desktop");
+      if (fs.existsSync(candidate)) return candidate;
+    }
+    return path.join(home, "Desktop");
+  }
+  return path.join(home, "Desktop");
+}
+
+export interface ShortcutResult {
+  created: boolean;
+  shortcutPath: string;
+  desktop: string;
+  alreadyExisted: boolean;
+}
+
+export function installDesktopShortcut(dashboardHtmlPath: string): ShortcutResult {
+  const desktop = desktopDir();
+  if (!fs.existsSync(desktop)) {
+    fs.mkdirSync(desktop, { recursive: true });
+  }
+
+  const platform = process.platform;
+  const fileUrl = "file:///" + dashboardHtmlPath.replace(/\\/g, "/").replace(/^\/+/, "");
+
+  let shortcutPath: string;
+  let body: string;
+
+  if (platform === "win32") {
+    shortcutPath = path.join(desktop, "MemoryBridge Dashboard.url");
+    body = `[InternetShortcut]\nURL=${fileUrl}\nIconIndex=0\n`;
+  } else if (platform === "darwin") {
+    shortcutPath = path.join(desktop, "MemoryBridge Dashboard.webloc");
+    body =
+      `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n` +
+      `<plist version="1.0">\n<dict>\n  <key>URL</key>\n  <string>${fileUrl}</string>\n</dict>\n</plist>\n`;
+  } else {
+    shortcutPath = path.join(desktop, "memorybridge-dashboard.desktop");
+    body =
+      `[Desktop Entry]\nVersion=1.0\nType=Link\nName=MemoryBridge Dashboard\n` +
+      `Comment=Open the MemoryBridge usage dashboard\nURL=${fileUrl}\nIcon=text-html\n`;
+  }
+
+  const alreadyExisted = fs.existsSync(shortcutPath);
+  fs.writeFileSync(shortcutPath, body, "utf8");
+
+  if (platform !== "win32" && platform !== "darwin") {
+    try { fs.chmodSync(shortcutPath, 0o755); } catch {}
+  }
+
+  return { created: !alreadyExisted, shortcutPath, desktop, alreadyExisted };
+}
+
+export function removeDesktopShortcut(): { removed: boolean; path?: string } {
+  const desktop = desktopDir();
+  const candidates = [
+    path.join(desktop, "MemoryBridge Dashboard.url"),
+    path.join(desktop, "MemoryBridge Dashboard.webloc"),
+    path.join(desktop, "memorybridge-dashboard.desktop"),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) {
+      try { fs.unlinkSync(c); return { removed: true, path: c }; } catch {}
+    }
+  }
+  return { removed: false };
+}

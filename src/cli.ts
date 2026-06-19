@@ -23,7 +23,7 @@ import { uninstall, formatUninstallReport } from "./uninstall.js";
 import { compare, formatCompare } from "./compare.js";
 import { formatSettings } from "./settings.js";
 import { runDiagnostics, formatDiagnostics } from "./diagnostics.js";
-import { writeDashboard, openInBrowser } from "./dashboard.js";
+import { writeDashboard, openInBrowser, installDesktopShortcut, removeDesktopShortcut } from "./dashboard.js";
 import { TOKEN_BUDGET, countTokens } from "./budget.js";
 import { computeStats, formatStats, logUsage } from "./stats.js";
 import { applyAction, addCustomDirective, clearCustomDirectives, formatStyleStatus, getCurrentStyle, StyleAction } from "./style.js";
@@ -302,13 +302,43 @@ function cmdStats(): void {
   console.log(formatStats(stats));
 }
 
-function cmdDashboard(): void {
+function cmdDashboard(args: string[] = []): void {
+  const { flags } = parseFlags(args);
+  const noShortcut = !!flags["no-shortcut"];
+  const noOpen = !!flags["no-open"];
+
   const dashPath = writeDashboard();
   console.log("");
   console.log(`Dashboard written: ${dashPath}`);
-  console.log(`Opening in your default browser…`);
+
+  if (!noShortcut) {
+    const sc = installDesktopShortcut(dashPath);
+    if (sc.alreadyExisted) {
+      console.log(`Desktop shortcut already on desktop: ${sc.shortcutPath}`);
+    } else {
+      console.log(`Desktop shortcut created: ${sc.shortcutPath}`);
+      console.log(`  (double-click any time to open the dashboard)`);
+    }
+  }
+
+  if (!noOpen) {
+    console.log(`Opening in your default browser…`);
+    openInBrowser(dashPath);
+  }
   console.log("");
-  openInBrowser(dashPath);
+}
+
+function cmdDashboardShortcut(args: string[]): void {
+  const sub = args[0];
+  if (sub === "remove") {
+    const res = removeDesktopShortcut();
+    if (res.removed) console.log(`removed: ${res.path}`);
+    else console.log("(no desktop shortcut found)");
+    return;
+  }
+  const dashPath = writeDashboard();
+  const sc = installDesktopShortcut(dashPath);
+  console.log(sc.alreadyExisted ? `updated: ${sc.shortcutPath}` : `created: ${sc.shortcutPath}`);
 }
 
 function cmdCompare(args: string[]): void {
@@ -614,7 +644,10 @@ async function main() {
       return cmdStats();
     case "dashboard":
     case "dash":
-      return cmdDashboard();
+      return cmdDashboard(rest);
+    case "desktop-shortcut":
+    case "shortcut":
+      return cmdDashboardShortcut(rest);
     case "show":
       return cmdLoad(rest);
     case "scan":

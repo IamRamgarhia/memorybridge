@@ -22,6 +22,7 @@ import { installAll, formatInstallReport } from "./install.js";
 import { uninstall, formatUninstallReport } from "./uninstall.js";
 import { compare, formatCompare } from "./compare.js";
 import { formatSettings } from "./settings.js";
+import { runDiagnostics, formatDiagnostics } from "./diagnostics.js";
 import { TOKEN_BUDGET, countTokens } from "./budget.js";
 import { computeStats, formatStats, logUsage } from "./stats.js";
 import { applyAction, addCustomDirective, clearCustomDirectives, formatStyleStatus, getCurrentStyle, StyleAction } from "./style.js";
@@ -64,6 +65,7 @@ Commands:
   style [bigger|smaller|1-5|off|on|add <text>|clear]
                                   Control AI response length (saves output tokens)
   doctor                          Verify install, paths, token budget
+  diagnostics                     Deep diagnostic: workspace detection, MCP server log, every health check
   compact [--days <n>]            Move stale entries to archive (default: 90 days)
   emit [<format>] [--all]         Generate AGENTS.md / CLAUDE.md / .cursorrules etc.
                                   formats: agents, claude, cursorrules, windsurfrules, geminimd,
@@ -615,6 +617,10 @@ async function main() {
       return cmdOpen();
     case "doctor":
       return cmdDoctor();
+    case "diagnostics":
+    case "diag":
+      console.log(formatDiagnostics(runDiagnostics()));
+      return;
     case "compact":
       return cmdCompact(rest);
     case "stats":

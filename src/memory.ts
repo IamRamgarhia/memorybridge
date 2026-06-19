@@ -86,7 +86,11 @@ export function loadFile(filePath: string): MemoryFile {
   const text = readFileSafe(filePath);
   if (!text) {
     const isGlobal = path.resolve(filePath) === path.resolve(GLOBAL_FILE);
-    const projectName = isGlobal ? "global" : path.basename(path.dirname(filePath));
+    let projectName = "global";
+    if (!isGlobal) {
+      const dirBase = path.basename(path.dirname(filePath));
+      projectName = dirBase.startsWith(".") ? "project" : dirBase;
+    }
     return emptyFile(projectName);
   }
   return parse(text);
@@ -226,9 +230,9 @@ export function overlapsRecentLoad(content: string): boolean {
 export function saveMemory(
   content: string,
   category: Category,
-  opts: { scope?: "project" | "global"; cwd?: string } = {}
+  opts: { scope?: "project" | "global"; cwd?: string; projectPath?: string } = {}
 ): SaveResult {
-  const cwd = opts.cwd ?? process.cwd();
+  const cwd = opts.projectPath ?? opts.cwd ?? process.cwd();
   const scope = opts.scope ?? "project";
 
   if (isBlocked(content)) {
@@ -260,8 +264,8 @@ export interface LoadResult {
   files: { project?: string; global?: string };
 }
 
-export function loadMemory(opts: { section?: string; cwd?: string; budget?: number } = {}): LoadResult {
-  const cwd = opts.cwd ?? process.cwd();
+export function loadMemory(opts: { section?: string; cwd?: string; projectPath?: string; budget?: number } = {}): LoadResult {
+  const cwd = opts.projectPath ?? opts.cwd ?? process.cwd();
   const budget = opts.budget ?? TOKEN_BUDGET.DEFAULT_LOAD;
 
   const projectPath = findProjectFile(cwd);
@@ -329,11 +333,11 @@ export function listEntries(opts: { cwd?: string } = {}): { project: string[]; g
   return { project, global, projectFile: projectPath ?? undefined };
 }
 
-export function searchMemory(query: string, opts: { cwd?: string; max?: number } = {}): {
+export function searchMemory(query: string, opts: { cwd?: string; projectPath?: string; max?: number } = {}): {
   results: { source: string; line: string }[];
   tokens: number;
 } {
-  const cwd = opts.cwd ?? process.cwd();
+  const cwd = opts.projectPath ?? opts.cwd ?? process.cwd();
   const max = opts.max ?? 10;
   const results: { source: string; line: string }[] = [];
 
